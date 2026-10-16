@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: Validate plugin
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Droid CLI
+        run: npm install -g droid
+
+      - name: Install the plugin into an isolated home
+        run: |
+          set -euo pipefail
+          DROID_HOME="$(mktemp -d)"
+          HOME="$DROID_HOME" droid plugin marketplace add .
+          HOME="$DROID_HOME" droid plugin install pstack@droid-pstack --scope user
+          HOME="$DROID_HOME" droid plugin list --scope user | grep -q pstack
+          test -n "$(find "$DROID_HOME/.factory/plugins/cache" -name SKILL.md -path '*poteto-mode*' | head -1)"
+          rm -rf "$DROID_HOME"
+
+      - name: Validate manifests and frontmatter
+        run: node scripts/validate-plugin.mjs
