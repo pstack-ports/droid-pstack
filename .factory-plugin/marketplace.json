@@ -1,0 +1,14 @@
+{
+  "name": "droid-pstack",
+  "description": "Droid port of pstack by Lauren Tan (poteto)",
+  "owner": {
+    "name": "pstack-ports"
+  },
+  "plugins": [
+    {
+      "name": "pstack",
+      "description": "if you want to go fast, go deep first. rigorous agent workflows you can parallelize with confidence.",
+      "source": "./"
+    }
+  ]
+}
