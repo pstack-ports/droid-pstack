@@ -226,7 +226,7 @@ describe("closed enum parsing", () => {
   });
 });
 
-it("annotates Bugbot threads with distinct review-pass counts", () => {
+it("annotates automated-reviewer threads with distinct review-pass counts", () => {
   const response = {
     data: {
       repository: {
@@ -255,11 +255,11 @@ it("annotates Bugbot threads with distinct review-pass counts", () => {
                 comments: {
                   nodes: [
                     {
-                      body: "CURSOR_AUTOMATION_ID: run-2 severity high",
+                      body: "RUN_ID: run-2 severity high",
                       createdAt: "now",
                       path: null,
                       line: null,
-                      author: { login: "cursor" },
+                      author: { login: "factory-droid[bot]" },
                     },
                   ],
                 },
@@ -340,11 +340,11 @@ describe("review thread pagination", () => {
     expect(reader.calls).toEqual(["reviewThreadPage:null"]);
   });
 
-  it("counts Bugbot review passes across every page", async () => {
-    const bugbot = (id: string, runId: string) => ({
+  it("counts automated-reviewer passes across every page", async () => {
+    const reviewBot = (id: string, runId: string) => ({
       id,
       firstComment: {
-        authorLogin: "bugbot",
+        authorLogin: "factory-droid[bot]",
         body: `RUN_ID: ${runId}`,
         path: "a.ts",
         line: 1,
@@ -354,8 +354,8 @@ describe("review thread pagination", () => {
     });
     const reader = fakeReader({
       threadPages: [
-        { threads: [bugbot("one", "run-1")], endCursor: "next" },
-        { threads: [bugbot("two", "run-2")], endCursor: null },
+        { threads: [reviewBot("one", "run-1")], endCursor: "next" },
+        { threads: [reviewBot("two", "run-2")], endCursor: null },
       ],
     });
     const threads = await resolveReviewThreads(reader, context);

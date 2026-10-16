@@ -61,9 +61,9 @@ elif raw=$(gh pr list --author "@me" --state all --limit 1000 \
 fi
 [ -s "$prs" ] || echo "[]" > "$prs"
 
-# Transcripts dir: ~/.cursor/projects/<slugified-repo-path>/agent-transcripts.
-slug=$(printf '%s' "$main_wt" | sed 's#^/##; s#/#-#g')
-transcripts="$HOME/.cursor/projects/$slug/agent-transcripts"
+# Sessions dir: ~/.factory/sessions/<repo path with "/" -> "-">, one .jsonl per session.
+slug=$(printf '%s' "$main_wt" | sed 's#/#-#g')
+transcripts="$HOME/.factory/sessions/$slug"
 now=$(date +%s)
 
 echo "# base: $base"

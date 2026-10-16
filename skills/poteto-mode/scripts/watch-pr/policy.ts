@@ -51,7 +51,8 @@ async function mergeAssessment(
   };
 }
 const AUTOMATION_TOKENS = [
-  "bugbot",
+  "droid auto review",
+  "droid-review",
   "security review",
   "pr review automation",
   "review automation",
