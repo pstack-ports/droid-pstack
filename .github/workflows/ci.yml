@@ -26,23 +26,278 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Resolve Droid CLI version
+        id: droid-version
+        run: |
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          installer="$(curl -fsSL https://app.factory.ai/cli)"
+          version="$(printf '%s' "$installer" | sed -n 's/^VER="\([^"]*\)"$/\1/p')"
+          if [ -z "$version" ]; then
+            echo "Failed to resolve Droid CLI version from https://app.factory.ai/cli" >&2
+            exit 1
+          fi
+          droid_arch="x64"
+          if ! grep -qi avx2 /proc/cpuinfo; then
+            droid_arch="x64-baseline"
+          fi
+          sha256="$(curl -fsSL "https://downloads.factory.ai/factory-cli/releases/${version}/linux/${droid_arch}/droid.sha256" | awk '{print $1}' | cut -c1-16)"
+          if [ -z "$sha256" ]; then
+            echo "Failed to resolve Droid CLI checksum" >&2
+            exit 1
+          fi
+          echo "version=${version}-${droid_arch}-${sha256}" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Droid CLI
+        id: cache-droid
+        uses: actions/cache@v4
         with:
-          node-version: lts/*
+          path: ~/.local/bin/droid
+          key: droid-cli-${{ runner.os }}-${{ runner.arch }}-${{ steps.droid-version.outputs.version }}
 
       - name: Install Droid CLI
-        run: npm install -g droid
+        if: steps.cache-droid.outputs.cache-hit != 'true'
+        run: curl -fsSL https://app.factory.ai/cli | bash
 
-      - name: Install the plugin into an isolated home
+      - name: Verify Droid CLI version
+        run: droid --version
+
+      - name: Validate plugin with Droid CLI
+        env:
+          PLUGIN_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
-          set -euo pipefail
+          if [ -z "${PLUGIN_BRANCH}" ]; then
+            echo "PLUGIN_BRANCH is empty" >&2
+            exit 1
+          fi
           DROID_HOME="$(mktemp -d)"
-          HOME="$DROID_HOME" droid plugin marketplace add "$GITHUB_WORKSPACE"
-          HOME="$DROID_HOME" droid plugin install pstack@droid-pstack --scope user
-          HOME="$DROID_HOME" droid plugin list --scope user | grep -q pstack
-          test -n "$(find "$DROID_HOME/.factory/plugins/cache" -name SKILL.md -path '*poteto-mode*' | head -1)"
-          rm -rf "$DROID_HOME"
+          trap 'rm -rf "$DROID_HOME"' EXIT
+          # Branch pins use #<ref>. Droid registers that source as <repo>@<ref>.
+          PLUGIN_ID="pstack@droid-pstack@${PLUGIN_BRANCH}"
+          HOME="$DROID_HOME" droid plugin marketplace add "pstack-ports/droid-pstack#${PLUGIN_BRANCH}"
+          HOME="$DROID_HOME" droid plugin install "$PLUGIN_ID" --scope user
+          HOME="$DROID_HOME" droid plugin list | tee "$DROID_HOME/plugin-list.txt"
+          installed_json="$(find "$DROID_HOME/.factory/plugins/installed_plugins" -name '*.json' -print -quit)"
+          DROID_PLUGIN_LIST="$DROID_HOME/plugin-list.txt" \
+            DROID_SETTINGS="$DROID_HOME/.factory/settings.json" \
+            DROID_INSTALLED_JSON="$installed_json" \
+            DROID_PLUGIN_ID="$PLUGIN_ID" \
+            bun -e '
+            import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
+            import { join, basename } from "node:path";
+
+            const errors = [];
+            const fail = (msg) => errors.push(msg);
+
+            const pluginJson = JSON.parse(readFileSync("plugin.json", "utf8"));
+            const droidPluginJson = JSON.parse(readFileSync(".factory-plugin/plugin.json", "utf8"));
+
+            const allowedPluginKeys = new Set([
+              "$schema",
+              "name",
+              "version",
+              "description",
+              "author",
+              "homepage",
+              "repository",
+              "license",
+              "keywords",
+              "extensions",
+            ]);
+            for (const key of Object.keys(pluginJson)) {
+              if (!allowedPluginKeys.has(key)) {
+                fail(`plugin.json contains unsupported key "${key}"`);
+              }
+            }
+            if (pluginJson.$schema !== "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json") {
+              fail(`plugin.json $schema must be https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`);
+            }
+            if (!/^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/.test(pluginJson.name ?? "")) {
+              fail(`plugin.json has invalid name "${pluginJson.name}"`);
+            }
+            for (const field of ["name", "version", "description"]) {
+              if (!pluginJson[field] || typeof pluginJson[field] !== "string") {
+                fail(`plugin.json missing string field "${field}"`);
+              }
+              if (pluginJson[field] !== droidPluginJson[field]) {
+                fail(`Manifest mismatch for "${field}": plugin.json="${pluginJson[field]}" vs .factory-plugin/plugin.json="${droidPluginJson[field]}"`);
+              }
+            }
+
+            const parseFrontmatter = (filePath) => {
+              const content = readFileSync(filePath, "utf8");
+              const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
+              if (!match) {
+                fail(`${filePath}: missing YAML frontmatter`);
+                return null;
+              }
+              return match[1];
+            };
+
+            const validateSkillDir = (skillsRoot) => {
+              const dirs = readdirSync(skillsRoot, { withFileTypes: true })
+                .filter((d) => d.isDirectory())
+                .map((d) => d.name)
+                .sort();
+              for (const dir of dirs) {
+                const skillFile = join(skillsRoot, dir, "SKILL.md");
+                if (!existsSync(skillFile)) {
+                  fail(`${skillsRoot}/${dir}: missing SKILL.md`);
+                  continue;
+                }
+                const fm = parseFrontmatter(skillFile);
+                if (!fm) continue;
+                const nameMatch = fm.match(/^name:\s*(.+)$/m);
+                const descMatch = fm.match(/^description:\s*(.+)$/m);
+                const skillName = nameMatch?.[1]?.trim();
+                if (skillName !== dir) {
+                  fail(`${skillFile}: frontmatter name "${skillName}" does not match directory "${dir}"`);
+                }
+                if (!descMatch?.[1]?.trim()) {
+                  fail(`${skillFile}: missing description in frontmatter`);
+                }
+              }
+              return dirs;
+            };
+
+            const expectedSkills = validateSkillDir("skills");
+            for (const autoEntry of readdirSync("automations", { withFileTypes: true })) {
+              if (!autoEntry.isDirectory()) continue;
+              const autoSkillsRoot = join("automations", autoEntry.name, "skills");
+              if (existsSync(autoSkillsRoot) && statSync(autoSkillsRoot).isDirectory()) {
+                validateSkillDir(autoSkillsRoot);
+              }
+            }
+
+            const expectedDroids = readdirSync("droids")
+              .filter((f) => f.endsWith(".md"))
+              .sort();
+            for (const droidFile of expectedDroids) {
+              const fullPath = join("droids", droidFile);
+              const fm = parseFrontmatter(fullPath);
+              if (!fm) continue;
+              const expectedName = basename(droidFile, ".md");
+              const nameMatch = fm.match(/^name:\s*(.+)$/m);
+              const descMatch = fm.match(/^description:\s*(.+)$/m);
+              if (nameMatch?.[1]?.trim() !== expectedName) {
+                fail(`${fullPath}: frontmatter name "${nameMatch?.[1]?.trim()}" does not match "${expectedName}"`);
+              }
+              if (!descMatch?.[1]?.trim()) {
+                fail(`${fullPath}: missing description in frontmatter`);
+              }
+            }
+
+            const toKebab = (s) =>
+              s
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, "")
+                .trim()
+                .replace(/\s+/g, "-");
+
+            const potetoSkill = readFileSync("skills/poteto-mode/SKILL.md", "utf8");
+            const principlesSection = potetoSkill.split("## Principles")[1]?.split("## Autonomy")[0] ?? "";
+            const playbooksSection = potetoSkill.split("## Playbooks")[1] ?? "";
+
+            const indexedPrinciples = new Set();
+            for (const line of principlesSection.split(/\r?\n/)) {
+              const m = line.match(/^- \*\*([^*]+?)\.?\*\*(?: \(\*\*(principle-[a-z0-9-]+)\*\*\))?/);
+              if (m) {
+                indexedPrinciples.add(m[2] ?? `principle-${toKebab(m[1])}`);
+              }
+            }
+            const diskPrinciples = new Set(expectedSkills.filter((s) => s.startsWith("principle-")));
+            for (const p of indexedPrinciples) {
+              if (!diskPrinciples.has(p)) fail(`skills/poteto-mode/SKILL.md references missing principle skill "${p}"`);
+            }
+            for (const p of diskPrinciples) {
+              if (!indexedPrinciples.has(p)) fail(`skills/${p} is not indexed in skills/poteto-mode/SKILL.md`);
+            }
+
+            const indexedPlaybooks = new Set();
+            for (const line of playbooksSection.split(/\r?\n/)) {
+              const m = line.match(/^- \*\*([^*]+?)\.\*\*(?:.*?File: `playbooks\/([^`]+)`)?/);
+              if (m) {
+                indexedPlaybooks.add(m[2] ?? `${toKebab(m[1])}.md`);
+              }
+            }
+            const diskPlaybooks = new Set(readdirSync("skills/poteto-mode/playbooks").filter((f) => f.endsWith(".md")));
+            for (const pb of indexedPlaybooks) {
+              if (!diskPlaybooks.has(pb)) fail(`skills/poteto-mode/SKILL.md references missing playbook "playbooks/${pb}"`);
+            }
+            for (const pb of diskPlaybooks) {
+              if (!indexedPlaybooks.has(pb)) fail(`skills/poteto-mode/playbooks/${pb} is not indexed in skills/poteto-mode/SKILL.md`);
+            }
+
+            const pluginId = process.env.DROID_PLUGIN_ID;
+            const list = readFileSync(process.env.DROID_PLUGIN_LIST, "utf8");
+            if (!list.includes(pluginId)) {
+              fail(`droid plugin list did not include "${pluginId}"`);
+            }
+            const settings = JSON.parse(readFileSync(process.env.DROID_SETTINGS, "utf8"));
+            if (settings.enabledPlugins?.[pluginId] !== true) {
+              fail(`Installed plugin "${pluginId}" is not enabled`);
+            }
+            const installed = JSON.parse(readFileSync(process.env.DROID_INSTALLED_JSON, "utf8"));
+            if (installed.pluginId !== pluginId) {
+              fail(`Installed plugin id "${installed.pluginId}" !== "${pluginId}"`);
+            }
+            // droid plugin list records the git commit, not plugin.json version.
+            if (!installed.entry?.version) {
+              fail(`Installed plugin "${pluginId}" has an empty version`);
+            }
+            const installRoot = installed.entry.installPath;
+            const cachedManifest = JSON.parse(readFileSync(join(installRoot, "plugin.json"), "utf8"));
+            for (const field of ["name", "version", "description"]) {
+              if (cachedManifest[field] !== pluginJson[field]) {
+                fail(`Cached plugin.json ${field} "${cachedManifest[field]}" !== "${pluginJson[field]}"`);
+              }
+            }
+            const cachedSkills = readdirSync(join(installRoot, "skills"), { withFileTypes: true })
+              .filter((d) => d.isDirectory())
+              .map((d) => d.name)
+              .sort();
+            const droidId = (name) => basename(String(name), ".md");
+            const cachedDroids = readdirSync(join(installRoot, "droids"))
+              .filter((f) => f.endsWith(".md"))
+              .map(droidId)
+              .sort();
+            const expectedDroidIds = expectedDroids.map(droidId);
+            if (JSON.stringify(cachedSkills) !== JSON.stringify(expectedSkills)) {
+              fail(`Loaded skills mismatch: expected ${expectedSkills.length}, got ${cachedSkills.length}`);
+            }
+            if (JSON.stringify(cachedDroids) !== JSON.stringify(expectedDroidIds)) {
+              fail(`Loaded droids mismatch: expected ${JSON.stringify(expectedDroidIds)}, got ${JSON.stringify(cachedDroids)}`);
+            }
+
+            if (errors.length > 0) {
+              for (const err of errors) console.error(`ERROR: ${err}`);
+              process.exit(1);
+            }
+            console.log(`Validated ${expectedSkills.length} skills, ${expectedDroids.length} droids, and ${diskPlaybooks.size} playbooks.`);
+          '
 
       - name: Validate manifests and frontmatter
         run: node scripts/validate-plugin.mjs
+
+      - name: Check shell scripts
+        run: |
+          bash -n skills/poteto-mode/scripts/worktree-audit.sh
+          bash -n skills/show-me-your-work/scripts/log.sh
+
+      - name: Install script dependencies
+        working-directory: skills/poteto-mode/scripts
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck scripts
+        working-directory: skills/poteto-mode/scripts
+        run: bun run typecheck
+
+      - name: Run script tests
+        working-directory: skills/poteto-mode/scripts
+        env:
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: commit.gpgsign
+          GIT_CONFIG_VALUE_0: "false"
+        run: bun run test
