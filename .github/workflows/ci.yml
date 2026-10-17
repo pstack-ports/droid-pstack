@@ -74,9 +74,16 @@ jobs:
           fi
           DROID_HOME="$(mktemp -d)"
           trap 'rm -rf "$DROID_HOME"' EXIT
-          # Branch pins use #<ref>. Droid registers that source as <repo>@<ref>.
-          PLUGIN_ID="pstack@droid-pstack@${PLUGIN_BRANCH}"
-          HOME="$DROID_HOME" droid plugin marketplace add "pstack-ports/droid-pstack#${PLUGIN_BRANCH}"
+          # #<ref> pins the branch. Droid registers that source as <repo>@<ref>
+          # and rewrites characters such as "/", so install the name it prints.
+          add_out="$(HOME="$DROID_HOME" droid plugin marketplace add "pstack-ports/droid-pstack#${PLUGIN_BRANCH}")"
+          printf '%s\n' "$add_out"
+          marketplace_name="$(printf '%s\n' "$add_out" | sed -n 's/^Successfully added marketplace: //p')"
+          if [ -z "$marketplace_name" ]; then
+            echo "Failed to read registered marketplace name" >&2
+            exit 1
+          fi
+          PLUGIN_ID="pstack@${marketplace_name}"
           HOME="$DROID_HOME" droid plugin install "$PLUGIN_ID" --scope user
           HOME="$DROID_HOME" droid plugin list | tee "$DROID_HOME/plugin-list.txt"
           installed_json="$(find "$DROID_HOME/.factory/plugins/installed_plugins" -name '*.json' -print -quit)"
