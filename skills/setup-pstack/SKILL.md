@@ -74,3 +74,7 @@ Tell the user the section was written and that it applies to new sessions. Re-ru
 ### 8. Offer a verification skill (optional)
 
 The default section pins every role to one of two models, and the panel roles run two subagents each, so the panel loses diversity. The same effort budget on two different model families gives a more honest second opinion than two seats on one family. To restore diversity, offer to write a pstack verification skill under `~/.factory/skills/`: a directory whose name starts with `pstack-verify`, a `SKILL.md` inside with frontmatter `name` and `description`, and no model line. The skill runs a small real task against the working tree twice, once per seat droid, and diffs the outputs in place, writing all files under `~/.factory/skills/<skill-name>/`. If accepted, read `~/.factory/AGENTS.md` first so no rule contradicts the generated skill, and keep the generated skill under 30 lines. Keep the offer to one line. The user may decline.
+
+### 9. Offer a formal verification skill (optional)
+
+Check whether the project already has a formal verification skill (a project skill that runs a model checker, a proof, or another verifier against the code). If not, offer once: "want a formal verification skill, so agents can prove a key property of your code holds in every case in scope, not only the cases tests reach? I can generate one with /create-formal-verification-skill." On yes, invoke `/create-formal-verification-skill` (resolves wherever pstack is installed: workspace, user, or plugin). On no, move on without pushing.
