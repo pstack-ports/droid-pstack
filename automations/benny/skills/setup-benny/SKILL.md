@@ -127,7 +127,7 @@ The repro automation needs:
 - A pull request action that can open a draft pull request
 - The configured control-adapter skill
 
-Prefer configured Slack connector actions for reads and posts. The optional `BENNY_SLACK_BOT_TOKEN` may fill a narrow gap such as editing one operations status message or downloading an attachment. Store the value in a secret manager or environment, not in YAML.
+Prefer configured Slack MCP or connector actions for reads and posts. The optional `BENNY_SLACK_BOT_TOKEN` may fill a narrow gap such as editing one operations status message or downloading an attachment. Store the value in a secret manager or environment, not in YAML.
 
 Do not use undocumented integration endpoints.
 
