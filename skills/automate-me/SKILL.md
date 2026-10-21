@@ -69,12 +69,12 @@ Author the skill per the **authoring-a-skill** playbook and Droid's skill anatom
 - Path: preserve an existing mode skill's category. For a new mode, use `.factory/skills/<handle>/<handle>-mode/SKILL.md` when the repo has an established personal category for that handle. Otherwise default to `.factory/skills/<handle>-mode/SKILL.md` in the project (or `~/.factory/skills/<handle>-mode/` if the user prefers a personal skill).
 - Handle: the user's first name or chosen identifier.
 - Frontmatter `description`: trigger on their name + `/<handle>-mode` + "work in their style", not on generic keywords like "write code" or "review PR".
-- Frontmatter formatting: follow the **authoring-a-skill** playbook's YAML rules. Keep `description` as one YAML scalar. Quote it or use `description: >-` with indented continuation lines when punctuation or wrapping requires it.
+- Frontmatter formatting: keep `description` as one YAML scalar. Quote it or use `description: >-` with indented continuation lines when punctuation or wrapping requires it.
 - Frontmatter `disable-model-invocation: true` by default. Opt out only if the user explicitly wants their mode to apply on every turn.
 
 ### 5. Iterate on prose
 
-Apply the **unslop** skill and the **authoring-a-skill** playbook's writing guidelines to every line.
+Apply the **unslop** skill and the prose rules in the **authoring-a-skill** playbook to every line.
 
 Show the draft to the user and take feedback. Expect multiple iterations. Cut ruthlessly. A mode skill is not a manual.
 
