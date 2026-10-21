@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Every spawn is a Task subagent. Explorers use the `how explorer` line in the pstack-models section of `~/.factory/AGENTS.md` (default `grok-4.7`, so spawn the code seat, `subagent_type: "poteto-agent"`), and every explainer uses the `how explainer` line (default `claude-opus-5-5`, so spawn the judgment seat, `subagent_type: "poteto-judgment"`). That section is always in context when present, so do not Read it; fall back to the defaults when it is absent. When a line's value is `auto` or `inherit-parent`, spawn the built-in `worker` instead. Explorers and explainers work read-only; say so in the brief. Pick each subagent's complexity for the job, per the Subagents section of the **poteto-mode** skill.
+Every spawn is a Task subagent. Explorers use the `how explorer` line in the pstack-models section of `~/.factory/AGENTS.md` (default `grok-4.7`, so spawn the read-only code seat, `subagent_type: "poteto-agent-readonly"`), and every explainer uses the `how explainer` line (default `claude-opus-5-5`, so spawn the read-only judgment seat, `subagent_type: "poteto-judgment-readonly"`). That section is always in context when present, so do not Read it; fall back to the defaults when it is absent. When a line's value is `auto` or `inherit-parent`, spawn the built-in `explorer` instead. Pick each subagent's complexity for the job, per the Subagents section of the **poteto-mode** skill.
 
 ## 1. Assess complexity
 

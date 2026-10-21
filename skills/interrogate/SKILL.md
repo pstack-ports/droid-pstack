@@ -28,10 +28,10 @@ Launch all reviewers in a single message with the Task tool, one per entry on th
 
 | Subagent | Default model | Seat |
 |----------|---------------|------|
-| Reviewer A | `claude-opus-5-5` | `poteto-judgment` |
-| Reviewer B | `grok-4.7` | `poteto-agent` |
+| Reviewer A | `claude-opus-5-5` | `poteto-judgment-readonly` |
+| Reviewer B | `grok-4.7` | `poteto-agent-readonly` |
 
-Each reviewer gets `subagent_type` for its entry's model: `claude-opus-5-5` means the judgment seat, `poteto-judgment`; `grok-4.7` means the code seat, `poteto-agent`. An `auto` or `inherit-parent` entry means the built-in `worker`, which runs on the parent model. Every reviewer works read-only; say so in the brief.
+Each reviewer gets `subagent_type` for its entry's model: `claude-opus-5-5` means the read-only judgment seat, `poteto-judgment-readonly`; `grok-4.7` means the read-only code seat, `poteto-agent-readonly`. An `auto` or `inherit-parent` entry means the built-in `explorer`, which runs on the parent model.
 
 Read `references/reviewer-prompt.md` and fill in the same template for every reviewer with the stated intent, the diff or file contents, the rubric from `references/rubric.md`, and the code-quality lens from `references/code-quality-review.md`. Pick each subagent's complexity for the job, per the Subagents section of the **poteto-mode** skill.
 
