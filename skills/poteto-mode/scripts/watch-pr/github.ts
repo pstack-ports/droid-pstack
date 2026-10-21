@@ -329,16 +329,10 @@ function parseComment(value: unknown): T.ReviewComment {
 function isBugbot(comment: T.ReviewComment | null): boolean {
   if (comment === null) return false;
   const author = (comment.authorLogin ?? "").toLowerCase();
-  // droid-action identifies its own comments the same way: the Factory Droid
-  // GitHub App posts as factory-droid[bot], so a login containing "droid"
-  // marks the automated reviewer.
-  return author.includes("bugbot") || author.includes("droid");
+  return author === "factory-droid[bot]";
 }
 function passKey(comment: T.ReviewComment | null): string | null {
   if (comment === null) return null;
-  // The automated reviewer leaves no run marker in comment bodies, so keys
-  // only come from automations that emit one; keyless threads count a single
-  // pass in buildReviewThreads.
   const match = /RUN_ID:\s*([a-zA-Z0-9_.:-]+)/.exec(comment.body);
   return match?.[1] ?? null;
 }
