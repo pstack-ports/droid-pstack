@@ -272,7 +272,7 @@ jobs:
               .filter((f) => f.endsWith(".md"))
               .map(droidId)
               .sort();
-            const expectedDroidIds = expectedDroids.map(droidId);
+            const expectedDroidIds = expectedDroids.map(droidId).sort();
             if (JSON.stringify(cachedSkills) !== JSON.stringify(expectedSkills)) {
               fail(`Loaded skills mismatch: expected ${expectedSkills.length}, got ${cachedSkills.length}`);
             }
