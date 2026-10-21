@@ -6,7 +6,6 @@ description: >-
   exposing that UI on Tailscale.
 disable-model-invocation: true
 ---
-
 # How to make a bot UI
 
 Build a page the user clicks. A server on this computer POSTs JSON to a webhook. The Droid wakes with that JSON. Keep the secret on the server. Do not put the secret in the browser, in chat, or in this skill.
