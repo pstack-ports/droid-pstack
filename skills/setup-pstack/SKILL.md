@@ -65,7 +65,7 @@ interrogate reviewers: claude-opus-5-5, grok-4.7
 
 ### 6. Pin the seats
 
-Droid's `Task` call has no per-spawn model field, so a role's model takes effect through the seat droids. When a seat's chosen model or effort differs from the plugin default (`poteto-agent` at `grok-4.7` xhigh, `poteto-judgment` at `claude-opus-5-5` xhigh), write a personal droid at `~/.factory/droids/<seat>.md` pinning the chosen model and `reasoningEffort`, with the same name, description, and body as the plugin's droid. Personal droids override plugin droids of the same name. When a seat matches the plugin default, delete any stale personal override for it so the plugin's droid applies. New sessions pick the changes up.
+Droid's `Task` call has no per-spawn model field, so a role's model takes effect through the seat droids. When a seat's chosen model or effort differs from the plugin default (`poteto-agent` at `grok-4.7` xhigh, `poteto-judgment` at `claude-opus-5-5` xhigh), write a personal droid at `~/.factory/droids/<seat>.md` pinning the chosen model and `reasoningEffort`, with the same name, description, and body as the plugin's droid. Do the same for its read-only twin (`poteto-agent-readonly`, `poteto-judgment-readonly`): same model and `reasoningEffort`, `tools: read-only`, and the plugin twin's description and body. Personal droids override plugin droids of the same name. When a seat matches the plugin default, delete any stale personal override for it and for its read-only twin so the plugin's droid applies. New sessions pick the changes up.
 
 ### 7. Confirm
 
