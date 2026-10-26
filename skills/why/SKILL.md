@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Investigate the motivation and intent behind code. The companion `how` skill answers what the code does and how it works. `why` answers what forces led to its shape.
 
-Each spawn below names a role line in the pstack-models section of `~/.factory/AGENTS.md` and a default. That section is always in context when present, so do not Read it; fall back to the defaults when it is absent. A line naming `grok-4.7` means the code seat, `subagent_type: "poteto-agent"`. A line naming `claude-opus-5-5` means the judgment seat, `subagent_type: "poteto-judgment"`. A line of `auto` or `inherit-parent` means the built-in `worker`, which runs on the parent model. Pick each subagent's complexity for the job, per the Subagents section of the **poteto-mode** skill.
+Each spawn below names a role line in the pstack-models section of `~/.factory/AGENTS.md` and a default. A line naming `grok-4.7` means the code seat, `subagent_type: "poteto-agent"`. A line naming `claude-opus-5-5` means the judgment seat, `subagent_type: "poteto-judgment"`. A line of `auto` or `inherit-parent` means the built-in `worker`, which runs on the parent model. Pick each subagent per the Subagents section of the **poteto-mode** skill.
 
 Every spawn keeps full tool access, including MCP. That is what powers the MCP-backed investigators and the synthesizer's citation spot-checks. Investigators still shouldn't write anything; say so in each brief.
 
