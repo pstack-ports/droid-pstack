@@ -35,12 +35,8 @@ jobs:
         id: droid-version
         run: |
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          installer="$(curl -fsSL https://app.factory.ai/cli)"
-          version="$(printf '%s' "$installer" | sed -n 's/^VER="\([^"]*\)"$/\1/p')"
-          if [ -z "$version" ]; then
-            echo "Failed to resolve Droid CLI version from https://app.factory.ai/cli" >&2
-            exit 1
-          fi
+          # Pinned because of the 0.249.0 marketplace-add credential bug. Unpin later.
+          version="0.248.0"
           droid_arch="x64"
           if ! grep -qi avx2 /proc/cpuinfo; then
             droid_arch="x64-baseline"
@@ -51,6 +47,8 @@ jobs:
             exit 1
           fi
           echo "version=${version}-${droid_arch}-${sha256}" >> "$GITHUB_OUTPUT"
+          echo "droid_version=${version}" >> "$GITHUB_OUTPUT"
+          echo "droid_arch=${droid_arch}" >> "$GITHUB_OUTPUT"
 
       - name: Cache Droid CLI
         id: cache-droid
@@ -61,7 +59,21 @@ jobs:
 
       - name: Install Droid CLI
         if: steps.cache-droid.outputs.cache-hit != 'true'
-        run: curl -fsSL https://app.factory.ai/cli | bash
+        env:
+          DROID_VERSION: ${{ steps.droid-version.outputs.droid_version }}
+          DROID_ARCH: ${{ steps.droid-version.outputs.droid_arch }}
+        run: |
+          base="https://downloads.factory.ai/factory-cli/releases/${DROID_VERSION}/linux/${DROID_ARCH}"
+          dest="$HOME/.local/bin/droid"
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL -o "$dest" "${base}/droid"
+          expected="$(curl -fsSL "${base}/droid.sha256" | awk '{print $1}')"
+          actual="$(sha256sum "$dest" | awk '{print $1}')"
+          if [ -z "$expected" ] || [ "$actual" != "$expected" ]; then
+            echo "Checksum verification failed" >&2
+            exit 1
+          fi
+          chmod +x "$dest"
 
       - name: Verify Droid CLI version
         run: droid --version
