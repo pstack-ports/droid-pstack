@@ -1,6 +1,6 @@
 # pstack
 
-Droid port of [pstack](https://github.com/cursor/plugins/tree/main/pstack) (`0.15.32`) by [Lauren Tan (poteto)](https://x.com/poteto), bundling `deslop`, `control-cli`, and `control-ui` from [cursor-team-kit](https://github.com/cursor/plugins/tree/main/cursor-team-kit) (`1.2.0`) by Eric Zakariasson.
+Droid port of [pstack](https://github.com/cursor/plugins/tree/main/pstack) (`0.15.32`) by [Lauren Tan (poteto)](https://x.com/poteto).
 
 i'm [poteto](https://x.com/poteto). i'm not a president or ceo, but i've worked with millions of lines of code at Meta, Netflix, and Cursor. i'm also on the react core team where i help build and maintain react compiler.
 
@@ -264,7 +264,7 @@ a few things `poteto-mode` references but doesn't bundle:
 
 - `/create-skill` is a droid slash command that opens a pane for the user. it is not a bundled skill, and an agent does not invoke it. inside `poteto-mode`, pr-status requests go to the [babysit playbook](./skills/poteto-mode/playbooks/babysit.md) instead.
 
-`deslop`, `control-cli`, and `control-ui` are bundled in this plugin. see the credit under the title.
+`deslop`, `control-cli`, and `control-ui` are bundled in this plugin.
 
 ## why are there no planning skills?
 
