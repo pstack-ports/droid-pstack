@@ -64,7 +64,7 @@ Correct the log, not the story. The audit never edits or removes a row, even an 
 
 ## Cross-model review of the trail
 
-Before handing back, spawn a subagent on the other seat's droid from the one that did the work (the `poteto-judgment` droid when this run used the code seat, the `poteto-agent` droid otherwise). Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Pick each subagent per the Subagents section of the **poteto-mode** skill.
+Before handing back, spawn a subagent on the other seat's droid from the one that did the work (the `poteto-judgment` droid when this run used the code seat, the `poteto-agent` droid otherwise). Self-review is not a substitute. The subagent reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky. Pick each subagent per the Subagents section of the **poteto-mode** skill. A subagent has no `Task` tool. When this run is itself a subagent, skip the spawn, end with `reviewed by: pending, parent to review`, and name the trail path in your report so the parent chat runs this review.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.

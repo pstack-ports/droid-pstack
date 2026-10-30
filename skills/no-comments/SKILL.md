@@ -14,6 +14,10 @@ Defer to Comment Sicko's fresh perspective.
 
 Use the caller's files or diff. Otherwise use the current diff against the base branch, default `main`, including the working tree.
 
+## In a subagent
+
+A subagent has no `Task` tool, so it cannot spawn Comment Sicko or run `/how`, `/why`, or `/architect`. There, run Comment Sicko's pass yourself in step 1. Read `../../droids/comment-sicko.md` from this file and follow it on the scope, then judge your own report in step 2 as strictly as a fresh one. Where a step says `/how` or `/why`, trace the symbol yourself through its callers, its tests, and its history. Where step 3 says `/architect`, report the needed shape as open work.
+
 ## Steps
 
 1. Spawn `Task` with `subagent_type: "comment-sicko"`. Pass the scope. Pick each subagent per the Subagents section of the **poteto-mode** skill. Do not restate its rules.
