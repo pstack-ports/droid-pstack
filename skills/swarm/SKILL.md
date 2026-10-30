@@ -24,7 +24,7 @@ Open a todolist with one entry per phase before launching anything.
 
 ## Phase B: Fan out
 
-Spawn all N workers in one message with the step 3 seat and `run_in_background: true`. Droid subagents run on the user's machine, so a worker that needs local access already has it.
+Spawn all N workers in one message with the step 3 seat. Droid subagents run on the user's machine, so a worker that needs local access already has it.
 
 When a worker must start from a non-default pushed branch, name the branch in its brief.
 
