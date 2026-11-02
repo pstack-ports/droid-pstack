@@ -240,7 +240,22 @@ jobs:
             }
 
             const pluginId = process.env.DROID_PLUGIN_ID;
-            const list = readFileSync(process.env.DROID_PLUGIN_LIST, "utf8");
+            // droid plugin list hard-wraps the id at 48 columns and prints the
+            // rest on the next line, after Enabled/user/version. Join that
+            // continuation back onto the id before matching. COLUMNS does not
+            // change the width, and stripping whitespace leaves those columns
+            // between the two halves.
+            const list = readFileSync(process.env.DROID_PLUGIN_LIST, "utf8")
+              .split(/\r?\n/)
+              .reduce((rows, line) => {
+                if (rows.length > 0 && line !== "" && !line.includes("  ")) {
+                  rows[rows.length - 1] = rows[rows.length - 1].replace("  ", line + "  ");
+                } else {
+                  rows.push(line);
+                }
+                return rows;
+              }, [])
+              .join("\n");
             if (!list.includes(pluginId)) {
               fail(`droid plugin list did not include "${pluginId}"`);
             }
