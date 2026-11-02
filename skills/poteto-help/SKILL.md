@@ -109,6 +109,7 @@ Close calls:
 Not in pstack:
 
 - `/loop` is a Droid built-in, not a pstack skill.
+- `/create-skill` opens a droid pane, not a skill an agent invokes, so authoring goes to the authoring-a-skill playbook.
 - pstack has no `/orchestrate` skill. Orchestrate is a `/poteto-mode` playbook. If the slash menu shows `/orchestrate`, another plugin provides it.
 
 ## Playbooks and principles
