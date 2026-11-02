@@ -57,7 +57,7 @@ Follow each approved row's Routing exactly:
 - `tune description: <skill path>` (the skill exists but didn't trigger when it should have): hand to the **authoring-a-skill** playbook.
 - `new skill: <kebab-name>`: hand creation to the **authoring-a-skill** playbook. Do not invent the shape ad hoc.
 
-Validate every touched skill with `/skills` before declaring done.
+If your environment ships a SKILL.md validator, run it on every touched skill before declaring done.
 
 ## 6. Summarize for the user
 
