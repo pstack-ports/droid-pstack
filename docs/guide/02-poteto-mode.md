@@ -102,7 +102,7 @@ A long chat accumulates context from the last task. When you change subjects, sa
 
 "new task" tells `/poteto-mode` to re-match rather than continue the prior playbook. "don't change any code yet" pins this one to Investigation. Without those two phrases, a mode mid-Feature tends to treat your question as the next feature step.
 
-## Give parallel work its own machine
+## Give parallel work its own worktree
 
 If you run several agents against one repository on one computer, they will fight over the working tree, the ports, and the build output. The cleanest isolation is a background subagent with its own git worktree. Each one gets its own branch and checkout, so it can install dependencies, run your app, and record video of the result without touching your working tree. Give each agent its own worktree, or ask the parent chat to hand work to background subagents.
 
