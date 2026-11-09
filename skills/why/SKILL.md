@@ -32,7 +32,7 @@ Before spawning investigators, build the seed context inline: file paths and lin
 
 ### Discovery
 
-Before spawning investigators, list the available MCPs from the Droid environment. Use the available-tools map when present. Otherwise inspect the configured MCP servers and connectors (Droid tool names look like `mcp_<server>_<tool>`).
+Before spawning investigators, list the available MCPs from the Droid environment. Use the available-tools map when present. Otherwise inspect the configured MCP servers and connectors.
 
 Map each available MCP to one evidence category:
 
