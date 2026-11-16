@@ -1,8 +1,8 @@
 ---
 name: poteto-judgment-readonly
-description: Read-only judgment-seat delegate for the hardest changes, contested design, prose, review panels, and synthesis, spawned during a `/poteto-mode` run when the job needs the strongest judgment model rather than the code seat. Use for delegates, not as the runner for `/poteto-mode` itself. Spawn a fresh `poteto-judgment-readonly` for each new task, and resume one only in the strict cases that poteto-mode's Subagents section names. Reads the `poteto-mode` skill's `SKILL.md` in full before any work, including its inline Principles index. Substituting `worker` skips that read and drifts.
-model: claude-opus-5-5
-reasoningEffort: xhigh
+description: Read-only judgment-seat delegate for the hardest changes, contested design, review panels, and synthesis, spawned during a `/poteto-mode` run when the job needs the strongest judgment model rather than the code seat. Use for delegates, not as the runner for `/poteto-mode` itself. Spawn a fresh `poteto-judgment-readonly` for each new task, and resume one only in the strict cases that poteto-mode's Subagents section names. Reads the `poteto-mode` skill's `SKILL.md` in full before any work, including its inline Principles index. Substituting `worker` skips that read and drifts.
+model: claude-fable-5-2
+reasoningEffort: max
 tools: read-only
 ---
 

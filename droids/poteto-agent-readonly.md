@@ -1,7 +1,7 @@
 ---
 name: poteto-agent-readonly
 description: Read-only delegate subagent for code-writing and helper tasks spawned during a `/poteto-mode` run. Use for delegates, not as the runner for `/poteto-mode` itself. Spawn a fresh `poteto-agent-readonly` for each new task, and resume one only in the strict cases that poteto-mode's Subagents section names. Reads the `poteto-mode` skill's `SKILL.md` in full before any work, including its inline Principles index. Substituting `worker` skips that read and drifts.
-model: grok-4.7
+model: claude-opus-5-5
 reasoningEffort: xhigh
 tools: read-only
 ---

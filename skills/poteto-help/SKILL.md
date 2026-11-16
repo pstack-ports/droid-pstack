@@ -43,7 +43,7 @@ Installing changes nothing until the user invokes a skill. Only `/setup-pstack` 
 
 If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-pstack` and pick a smaller budget or cheaper models. A role set to `auto` or `inherit-parent` spawns the built-in `worker` droid and runs on the session's model, which saves tokens when the session runs a cheaper model. A shorter panel list runs fewer subagents, one for each entry. Save `/poteto-mode` for work that needs rigor.
 
-pstack is built for Droid. Its skills use the SKILL.md format, which other tools can also read. But most workflow skills, including `/poteto-mode`, `/how`, `/why`, and `/teach`, spawn Droid subagents with per-role seat droids, and `/loop` is a Droid feature, so those parts may not work elsewhere.
+pstack is built for Droid. Its skills use the SKILL.md format, which other tools can also read. But most workflow skills, including `/poteto-mode`, `/how`, and `/teach`, spawn Droid subagents, some with per-role seat droids, and `/loop` is a Droid feature, so those parts may not work elsewhere.
 
 ## Start a task with `/poteto-mode`
 
