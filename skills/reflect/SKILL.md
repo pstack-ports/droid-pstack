@@ -24,19 +24,19 @@ Droid stores one .jsonl per session at that level, and every line is one chat me
 
 One message, three `Task` calls, each on the seat droid for its role. Droid's droids already have the tools they need, and the session's MCP servers provide the reviewers' MCP access to look up the tickets, chat threads, and observability traces the transcript references.
 
-Each reviewer and the synthesizer name a role line in the pstack-models section of `~/.factory/AGENTS.md` and a default. Fall back to the default when the section or the line is missing. Spawn on the role's seat: a judgment line means the `poteto-judgment` droid, a tooling line means the `poteto-agent` droid, and `auto` or `inherit-parent` means the built-in `worker` droid, which runs on the parent chat model. `/setup-pstack` pins a seat to a different model by writing a personal droid at `~/.factory/droids/<seat>.md`. Pick each subagent per the Subagents section of the **poteto-mode** skill.
+Each reviewer and the synthesizer name a role line in the pstack-models section of `~/.factory/AGENTS.md` and a default. Fall back to the default when the section or the line is missing. Spawn on the seat whose model the line names: `claude-opus-5-5` is `poteto-agent`, `claude-fable-5-2` is `poteto-judgment`, and `auto` or `inherit-parent` means the built-in `worker` droid, which runs on the parent chat model. `/setup-pstack` pins a seat to a different model by writing a personal droid at `~/.factory/droids/<seat>.md`. Pick each subagent per the Subagents section of the **poteto-mode** skill.
 
 | Lens | Role line | Default seat | Prompt template |
 |---|---|---|---|
-| Judgment | `reflect judgment, divergent, synthesizer` | judgment seat (`poteto-judgment`) | `references/judgment-reviewer.md` |
+| Judgment | `reflect judgment, divergent, synthesizer` | code seat (`poteto-agent`) | `references/judgment-reviewer.md` |
 | Tooling | `reflect tooling` | code seat (`poteto-agent`) | `references/tooling-reviewer.md` |
-| Divergent | `reflect judgment, divergent, synthesizer` | judgment seat (`poteto-judgment`) | `references/divergent-reviewer.md` |
+| Divergent | `reflect judgment, divergent, synthesizer` | code seat (`poteto-agent`) | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `Task` response body.
 
 ## 3. Synthesize
 
-One `Task` call, on the `reflect judgment, divergent, synthesizer` line's seat (default judgment seat, `poteto-judgment`). It spot-verifies citations through MCP, and the session's MCP servers provide that access. Pass `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
+One `Task` call, on the `reflect judgment, divergent, synthesizer` line's seat (default code seat, `poteto-agent`). It spot-verifies citations through MCP, and the session's MCP servers provide that access. Pass `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. It returns an Accepted / Rejected / Backlog list.
 
 ## 4. Structural enforcement check
 

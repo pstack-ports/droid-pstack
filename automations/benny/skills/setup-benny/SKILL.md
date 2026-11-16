@@ -41,7 +41,6 @@ This preserves every unrelated setting and plugin entry.
 
 Reload the target project or start a fresh agent rooted there. Verify that these shared pstack skills resolve from project scope:
 
-- `how`
 - `why`
 - `tdd`
 - `unslop`
