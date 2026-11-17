@@ -21,7 +21,7 @@ Run:
 
 [`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes the pstack-models section into `~/.factory/AGENTS.md`, a small rule every pstack skill reads.
 
-The defaults are the same as the `large` budget. The code seat runs at `xhigh` effort and the judgment seat runs at `max`. `unlimited` raises each seat one level, up to `max`. `medium` lowers each seat one level and `small` lowers it two, and both spend fewer tokens.
+The defaults are the same as the `large` budget. Code, prose, and judgment run on the code seat, Opus 5.5 at `xhigh`. The judgment seat is Fable 5.2 at `xhigh`, and no seat runs above `xhigh`. Outside a review panel, Fable 5.2 runs only when you name it for a task or after two Opus 5.5 runs of the same brief fail their check. Review panels and swarm workers share those seats, so they run at the seat's `xhigh` rather than a separate `high`. `medium` lowers each seat one level and `small` lowers it two, and both spend fewer tokens.
 
 You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose model differs from the default. When a default changes, a rule written before the change still pins the old default until you run `/setup-pstack` again. That run replaces the old defaults it recognizes, tells you which, and keeps your other choices. To drop a pin it does not recognize, delete that role's line or the section first.
 
@@ -56,7 +56,7 @@ Pick something real but small, and describe it the way you'd describe it to a co
 /poteto-mode add a --json flag to this command. text output stays byte-identical. verify both.
 ```
 
-Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt.
 
 From here you can type normal follow-ups. Droid attaches a skill to the message that names it, so start each new task with `/poteto-mode`.
 

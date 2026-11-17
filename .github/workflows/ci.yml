@@ -229,6 +229,14 @@ jobs:
               const m = line.match(/^- \*\*([^*]+?)\.\*\*(?:.*?File: `playbooks\/([^`]+)`)?/);
               if (m) {
                 indexedPlaybooks.add(m[2] ?? `${toKebab(m[1])}.md`);
+                continue;
+              }
+              // 0.15.43 lists the playbooks as one comma-separated sentence.
+              if (/,/.test(line) && /\.$/.test(line.trim()) && !line.includes("**")) {
+                for (const name of line.replace(/\.\s*$/, "").split(",")) {
+                  const trimmed = name.trim();
+                  if (trimmed) indexedPlaybooks.add(`${toKebab(trimmed)}.md`);
+                }
               }
             }
             const diskPlaybooks = new Set(readdirSync("skills/poteto-mode/playbooks").filter((f) => f.endsWith(".md")));
