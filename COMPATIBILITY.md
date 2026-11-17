@@ -34,7 +34,7 @@ These are the platform behaviors that drive every rule below. Recheck them when 
 
 | Cursor | Droid |
 | :-- | :-- |
-| Per-spawn model and reasoning level on Task | Seat droids. `poteto-agent` is the code seat (`claude-opus-5-5`, `xhigh`). `poteto-judgment` is the judgment seat (`claude-fable-5-2`, `max`). Each has a read-only twin with `tools: read-only` |
+| Per-spawn model and reasoning level on Task | Seat droids. `poteto-agent` is the code seat (`claude-opus-5-5`, `xhigh`) for code, prose, and judgment. `poteto-judgment` is the Fable seat (`claude-fable-5-2`, `xhigh`), used when the user names Fable 5.2, after two failed Opus 5.5 xhigh runs, or on a panel. No seat runs above `xhigh`. Each has a read-only twin with `tools: read-only` |
 | `readonly: true` | `tools: read-only`, only on a droid that never writes |
 | `readonly: false` | Omit `tools`. A droid that edits files, such as `comment-sicko`, must not be read-only |
 | `is_background: true` | Drop it. Every Task runs in the background |
@@ -47,10 +47,10 @@ These are the platform behaviors that drive every rule below. Recheck them when 
 | Cursor | Droid |
 | :-- | :-- |
 | `run_in_background: true` on a spawn | Drop the field. Spawn parallel work in one message |
-| A subagent that spawns its own subagents (sub-coordinators, a subagent that runs `/how` or `/no-comments`) | Every spawn stays in the chat that runs the playbook. A skill that a delegate may run needs an in-subagent path that does the work inline. `no-comments` reads `droids/comment-sicko.md` and runs the pass itself. `show-me-your-work` leaves its cross-model review to the parent. `comment-sicko` traces a claim itself instead of running `/how`, and it may run `/why` inline because that skill does not spawn. The orchestrate sub-coordinator is dropped |
+| A subagent that spawns its own subagents (a subagent that runs `/how` or `/no-comments`) | Every spawn stays in the chat that runs the playbook. A skill that a delegate may run needs an in-subagent path that does the work inline. `no-comments` reads `droids/comment-sicko.md` and runs the pass itself. `show-me-your-work` leaves its cross-model review to the parent. `comment-sicko` traces a claim itself instead of running `/how`, and it may run `/why` inline because that skill does not spawn. `architect` sketches both shapes itself when a subagent runs it, because `arena` spawns |
 | Cloud agents | Background subagents, each in its own git worktree |
 
-Skills that spawn subagents, and so must run in the main chat: `how`, `teach`, `recall`, `arena`, `architect`, `swarm`, `interrogate`, `reflect`. `no-comments` and `show-me-your-work` also spawn, and each has an in-subagent path. `why` does not spawn.
+Skills that spawn subagents, and so must run in the main chat: `how`, `teach`, `recall`, `arena`, `architect`, `swarm`, `interrogate`. `no-comments` and `show-me-your-work` also spawn, and each has an in-subagent path. `why` and `reflect` do not spawn. `architect` stays on this list because a large or contested design runs `arena`.
 
 ### Skills
 
@@ -60,7 +60,7 @@ Skills that spawn subagents, and so must run in the main chat: `how`, `teach`, `
 | `paths: [...]` glob activation | Drop `paths`. Remove `disable-model-invocation` and let the description route the skill (`typescript-best-practices`) |
 | `icon`, `color` | Kept for parity with upstream. Droid ignores them |
 | A skill loaded by the model by name | Skills with `disable-model-invocation: true` are read by path. `poteto-mode` reads `../<name>/SKILL.md`. Seat droids find `poteto-mode` in `~/.factory/plugins/` |
-| cursor-team-kit `deslop`, `control-cli`, `control-ui` | Bundled in `skills/` |
+| `deslop`, `control-cli`, `control-ui` | Bundled in `skills/` |
 | Cursor `create-skill` skill | The `authoring-a-skill` playbook. Droid's `/create-skill` is a user pane, not a skill an agent can call |
 
 ### Paths
