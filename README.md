@@ -1,6 +1,6 @@
 # pstack
 
-Droid port of [pstack](https://github.com/cursor/plugins/tree/main/pstack) (`0.15.43`) by [Lauren Tan (poteto)](https://x.com/poteto).
+Droid port of [pstack](https://github.com/cursor/plugins/tree/main/pstack) (`0.15.46`) by [Lauren Tan (poteto)](https://x.com/poteto).
 
 i'm [poteto](https://x.com/poteto). i'm not a president or ceo, but i've worked with millions of lines of code at Meta, Netflix, and Cursor. i'm also on the react core team where i help build and maintain react compiler.
 
